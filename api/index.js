@@ -2,23 +2,25 @@ const axios = require('axios');
 
 module.exports = async (req, res) => {
     try {
-        // Ada Derana RSS Feed එක (Hiru එකට වඩා මේක ලේසියි)
         const config = {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-                'Accept': 'application/xml'
-            }
+            headers: { 'User-Agent': 'Mozilla/5.0' }
         };
 
+        // අපි කෙළින්ම අද දෙරණ සිංහල නිවුස් RSS එක ගන්නවා
         const response = await axios.get('http://sinhala.adaderana.lk/rss.php', config);
-        const xmlData = response.data;
+        const xml = response.data;
 
-        // RSS එකෙන් News Title ටික වෙන් කරගැනීම
-        // Ada Derana එකේ සිරස්තල <title>...</title> අතර තියෙන්නේ
-        const newsItems = xmlData.match(/<title>(.*?)<\/title>/g)
-            .map(item => item.replace('<title>', '').replace('</title>', ''))
-            .filter(item => item !== 'AdaDerana.lk' && item !== 'Ada Derana') // අනවශ්‍ය ඒවා අයින් කරනවා
-            .slice(0, 10); 
+        // XML එකෙන් <title> ටැග් ඇතුළේ තියෙන පුවත් ටික වෙන් කරගන්න ලේසිම ක්‍රමය
+        const newsItems = [];
+        const titles = xml.split('<title>');
+        
+        // මුල් පේළි දෙක අත හරිනවා (ඒවා නිවුස් නෙවෙයි, චැනල් එකේ විස්තර)
+        for (let i = 2; i < titles.length && newsItems.length < 10; i++) {
+            let title = titles[i].split('</title>')[0];
+            // අනවශ්‍ය අකුරු අයින් කරනවා
+            title = title.replace('<![CDATA[', '').replace(']]>', '').trim();
+            if (title) newsItems.push(title);
+        }
 
         const html = `
         <!DOCTYPE html>
@@ -46,7 +48,7 @@ module.exports = async (req, res) => {
         <body>
             <div class="overlay"></div>
             <div class="header">VIRU NEWS UPDATE</div>
-            <div class="news-box">
+            <div class="content news-box">
                 ${newsItems.map((n, i) => `<div class="news-item ${i === 0 ? 'active' : ''}">${n}</div>`).join('')}
             </div>
             <div class="footer">📡 Viru TV | Sri Lanka's Automated Live News</div>
@@ -56,13 +58,16 @@ module.exports = async (req, res) => {
             </audio>
 
             <script>
+                // Autoplay හදාගන්න Screen එකේ කොහේ හරි එක පාරක් Click කරන්න
                 window.onclick = () => { document.getElementById('bgMusic').play(); };
                 const items = document.querySelectorAll('.news-item');
                 let current = 0;
                 setInterval(() => {
-                    items[current].classList.remove('active');
-                    current = (current + 1) % items.length;
-                    items[current].classList.add('active');
+                    if(items.length > 0) {
+                        items[current].classList.remove('active');
+                        current = (current + 1) % items.length;
+                        items[current].classList.add('active');
+                    }
                 }, 8000);
             </script>
         </body>
@@ -72,6 +77,6 @@ module.exports = async (req, res) => {
         res.setHeader('Content-Type', 'text/html');
         res.status(200).send(html);
     } catch (e) {
-        res.status(500).send("Ada Derana Fetch Error: " + e.message);
+        res.status(500).send("News Fetch Error: " + e.message);
     }
 };
