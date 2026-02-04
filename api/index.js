@@ -1,19 +1,17 @@
-const axios = require('axios');
+const Parser = require('rss-parser');
+const parser = new Parser();
 
 module.exports = async (req, res) => {
     try {
-        // අද දෙරණ මොබයිල් ඇප් එකේ JSON API එක (මෙය බ්ලොක් කර නැත)
-        const url = 'http://api.adaderana.lk/v1/news?count=10&lang=si';
+        // NewsFirst Sinhala News Google RSS Proxy හරහා
+        const url = 'https://news.google.com/rss/search?q=source:newsfirst.lk+when:24h&hl=si&gl=LK&ceid=LK:si';
         
-        const response = await axios.get(url, {
-            headers: { 'User-Agent': 'Adaderana/1.0 (Android)' } // මොබයිල් ඇප් එකක් වගේ යනවා
-        });
-
-        // JSON එකේ තියෙන පුවත් සිරස්තල පමණක් ගමු
-        let newsItems = [];
-        if (response.data && response.data.news) {
-            newsItems = response.data.news.map(n => n.title);
-        }
+        const feed = await parser.parseURL(url);
+        
+        // පුවත් සිරස්තල 10ක් ගැනීම
+        const newsItems = feed.items.map(item => {
+            return item.title.split(' - ')[0].trim();
+        }).slice(0, 10);
 
         const html = `
         <!DOCTYPE html>
@@ -42,7 +40,7 @@ module.exports = async (req, res) => {
             <div class="news-box">
                 ${newsItems.length > 0 ? newsItems.map((n, i) => `<div class="news-item ${i === 0 ? 'active' : ''}">${n}</div>`).join('') : '<div class="news-item active">පුවත් පද්ධතිය හා සම්බන්ධ වෙමින්...</div>'}
             </div>
-            <div class="footer">📡 ශ්‍රී ලංකාවේ ප්‍රථම ස්වයංක්‍රීය LIVE ප්‍රවෘත්ති විකාශය</div>
+            <div class="footer">📡 සිරස පුවත් ඇසුරින් | VIRU TV LIVE</div>
             
             <audio id="bgMusic" loop autoplay>
                 <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" type="audio/mp3">
