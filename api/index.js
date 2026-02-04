@@ -2,22 +2,24 @@ const axios = require('axios');
 
 module.exports = async (req, res) => {
     try {
-        // Hiru News එකෙන් 403 එන එක නවත්තන්න User-Agent එකක් දාමු
+        // Ada Derana RSS Feed එක (Hiru එකට වඩා මේක ලේසියි)
         const config = {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+                'Accept': 'application/xml'
             }
         };
 
-        const response = await axios.get('https://www.hirunews.lk/rss/sinhala.xml', config);
+        const response = await axios.get('http://sinhala.adaderana.lk/rss.php', config);
         const xmlData = response.data;
 
-        // පුවත් සිරස්තල Extract කිරීම
-        const newsItems = xmlData.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/g)
-            .map(item => item.replace('<title><![CDATA[', '').replace(']]></title>', ''))
-            .slice(1, 11); 
+        // RSS එකෙන් News Title ටික වෙන් කරගැනීම
+        // Ada Derana එකේ සිරස්තල <title>...</title> අතර තියෙන්නේ
+        const newsItems = xmlData.match(/<title>(.*?)<\/title>/g)
+            .map(item => item.replace('<title>', '').replace('</title>', ''))
+            .filter(item => item !== 'AdaDerana.lk' && item !== 'Ada Derana') // අනවශ්‍ය ඒවා අයින් කරනවා
+            .slice(0, 10); 
 
-        // HTML පෙනුම
         const html = `
         <!DOCTYPE html>
         <html>
@@ -32,23 +34,20 @@ module.exports = async (req, res) => {
                     height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
                     overflow: hidden; color: white;
                 }
-                .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,50,0.6); z-index: 1; }
-                .content { z-index: 2; width: 85%; text-align: center; }
-                .header { font-size: 55px; font-weight: 900; color: #ffcc00; text-shadow: 2px 2px 10px black; border-bottom: 5px solid red; margin-bottom: 40px; }
-                .news-box { height: 300px; display: flex; justify-content: center; align-items: center; }
-                .news-item { font-size: 42px; line-height: 1.4; display: none; text-shadow: 3px 3px 10px black; }
-                .active { display: block; animation: zoomIn 0.8s ease; }
-                @keyframes zoomIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+                .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,50,0.7); z-index: 1; }
+                .header { z-index: 2; font-size: 50px; font-weight: 900; color: #ffcc00; text-shadow: 2px 2px 10px black; border-bottom: 5px solid red; margin-bottom: 40px; }
+                .news-box { z-index: 2; width: 85%; height: 300px; display: flex; justify-content: center; align-items: center; text-align: center; }
+                .news-item { font-size: 40px; line-height: 1.4; display: none; text-shadow: 3px 3px 10px black; font-weight: bold; }
+                .active { display: block; animation: fadeIn 1s ease; }
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
                 .footer { position: absolute; bottom: 30px; font-size: 18px; color: #ccc; z-index: 2; }
             </style>
         </head>
         <body>
             <div class="overlay"></div>
             <div class="header">VIRU NEWS UPDATE</div>
-            <div class="content">
-                <div class="news-box">
-                    ${newsItems.map((n, i) => `<div class="news-item ${i === 0 ? 'active' : ''}">${n}</div>`).join('')}
-                </div>
+            <div class="news-box">
+                ${newsItems.map((n, i) => `<div class="news-item ${i === 0 ? 'active' : ''}">${n}</div>`).join('')}
             </div>
             <div class="footer">📡 Viru TV | Sri Lanka's Automated Live News</div>
             
@@ -64,7 +63,7 @@ module.exports = async (req, res) => {
                     items[current].classList.remove('active');
                     current = (current + 1) % items.length;
                     items[current].classList.add('active');
-                }, 7000);
+                }, 8000);
             </script>
         </body>
         </html>
@@ -73,6 +72,6 @@ module.exports = async (req, res) => {
         res.setHeader('Content-Type', 'text/html');
         res.status(200).send(html);
     } catch (e) {
-        res.status(500).send("News fetch error (403 fix): " + e.message);
+        res.status(500).send("Ada Derana Fetch Error: " + e.message);
     }
 };
