@@ -1,18 +1,22 @@
-const Parser = require('rss-parser');
-const parser = new Parser();
+const axios = require('axios');
 
 module.exports = async (req, res) => {
     try {
-        // අද දෙරණ RSS එක මුලින්ම ට්‍රයි කරනවා
-        let feed;
-        try {
-            feed = await parser.parseURL('http://sinhala.adaderana.lk/rss.php');
-        } catch (e) {
-            // ඒක වැඩ නැත්නම් හිරු නිවුස් බලනවා
-            feed = await parser.parseURL('https://www.hirunews.lk/rss/sinhala.xml');
-        }
+        // Google News - Sri Lanka Sinhala Feed
+        const url = 'https://news.google.com/rss/search?q=Sri+Lanka+when:24h&hl=si&gl=LK&ceid=LK:si';
+        const response = await axios.get(url);
+        const xml = response.data;
 
-        const newsItems = feed.items.map(item => item.title).slice(0, 10);
+        // ඉතා සරලව අකුරු ටික වෙන් කර ගැනීම
+        const newsItems = [];
+        const items = xml.split('<item>');
+        
+        for (let i = 1; i < items.length && newsItems.length < 10; i++) {
+            let title = items[i].split('<title>')[1].split('</title>')[0];
+            // Google News එකේ අන්තිමට තියෙන Source එක අයින් කරනවා
+            title = title.split(' - ')[0]; 
+            newsItems.push(title);
+        }
 
         const html = `
         <!DOCTYPE html>
@@ -22,23 +26,21 @@ module.exports = async (req, res) => {
             <style>
                 body { 
                     margin: 0; padding: 0; 
-                    background: #000 url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920') no-repeat center center; 
-                    background-size: cover;
+                    background: #001a33; 
+                    background-image: radial-gradient(circle, #002b52, #00050a);
                     font-family: 'Segoe UI', Arial, sans-serif;
                     height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
                     overflow: hidden; color: white;
                 }
-                .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,50,0.7); z-index: 1; }
-                .header { z-index: 2; font-size: 50px; font-weight: 900; color: #ffcc00; text-shadow: 2px 2px 10px black; border-bottom: 5px solid red; margin-bottom: 40px; }
-                .news-box { z-index: 2; width: 85%; height: 300px; display: flex; justify-content: center; align-items: center; text-align: center; }
-                .news-item { font-size: 40px; line-height: 1.4; display: none; text-shadow: 3px 3px 10px black; font-weight: bold; }
-                .active { display: block; animation: fadeIn 1s ease; }
-                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-                .footer { position: absolute; bottom: 30px; font-size: 18px; color: #ccc; z-index: 2; }
+                .header { font-size: 50px; font-weight: 900; color: #ffcc00; text-shadow: 0 0 20px rgba(255,204,0,0.5); border-bottom: 5px solid red; margin-bottom: 40px; }
+                .news-box { width: 85%; height: 250px; display: flex; justify-content: center; align-items: center; text-align: center; }
+                .news-item { font-size: 38px; line-height: 1.4; display: none; font-weight: bold; animation: fadeIn 1s; }
+                .active { display: block; }
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .footer { position: absolute; bottom: 30px; font-size: 18px; color: #666; }
             </style>
         </head>
         <body>
-            <div class="overlay"></div>
             <div class="header">VIRU NEWS UPDATE</div>
             <div class="news-box">
                 ${newsItems.map((n, i) => `<div class="news-item ${i === 0 ? 'active' : ''}">${n}</div>`).join('')}
@@ -46,20 +48,18 @@ module.exports = async (req, res) => {
             <div class="footer">📡 Viru TV | Sri Lanka's Automated Live News</div>
             
             <audio id="bgMusic" loop autoplay>
-                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" type="audio/mp3">
+                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
             </audio>
 
             <script>
                 window.onclick = () => { document.getElementById('bgMusic').play(); };
                 const items = document.querySelectorAll('.news-item');
                 let current = 0;
-                if(items.length > 0) {
-                    setInterval(() => {
-                        items[current].classList.remove('active');
-                        current = (current + 1) % items.length;
-                        items[current].classList.add('active');
-                    }, 8000);
-                }
+                setInterval(() => {
+                    items[current].classList.remove('active');
+                    current = (current + 1) % items.length;
+                    items[current].classList.add('active');
+                }, 8000);
             </script>
         </body>
         </html>
@@ -68,6 +68,6 @@ module.exports = async (req, res) => {
         res.setHeader('Content-Type', 'text/html');
         res.status(200).send(html);
     } catch (e) {
-        res.status(500).send("Fatal Error: " + e.message);
+        res.status(500).send("Viru TV News System Error: " + e.message);
     }
 };
