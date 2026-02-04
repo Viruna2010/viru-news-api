@@ -1,26 +1,18 @@
-const axios = require('axios');
+const Parser = require('rss-parser');
+const parser = new Parser();
 
 module.exports = async (req, res) => {
     try {
-        const config = {
-            headers: { 'User-Agent': 'Mozilla/5.0' }
-        };
-
-        // අපි කෙළින්ම අද දෙරණ සිංහල නිවුස් RSS එක ගන්නවා
-        const response = await axios.get('http://sinhala.adaderana.lk/rss.php', config);
-        const xml = response.data;
-
-        // XML එකෙන් <title> ටැග් ඇතුළේ තියෙන පුවත් ටික වෙන් කරගන්න ලේසිම ක්‍රමය
-        const newsItems = [];
-        const titles = xml.split('<title>');
-        
-        // මුල් පේළි දෙක අත හරිනවා (ඒවා නිවුස් නෙවෙයි, චැනල් එකේ විස්තර)
-        for (let i = 2; i < titles.length && newsItems.length < 10; i++) {
-            let title = titles[i].split('</title>')[0];
-            // අනවශ්‍ය අකුරු අයින් කරනවා
-            title = title.replace('<![CDATA[', '').replace(']]>', '').trim();
-            if (title) newsItems.push(title);
+        // අද දෙරණ RSS එක මුලින්ම ට්‍රයි කරනවා
+        let feed;
+        try {
+            feed = await parser.parseURL('http://sinhala.adaderana.lk/rss.php');
+        } catch (e) {
+            // ඒක වැඩ නැත්නම් හිරු නිවුස් බලනවා
+            feed = await parser.parseURL('https://www.hirunews.lk/rss/sinhala.xml');
         }
+
+        const newsItems = feed.items.map(item => item.title).slice(0, 10);
 
         const html = `
         <!DOCTYPE html>
@@ -48,7 +40,7 @@ module.exports = async (req, res) => {
         <body>
             <div class="overlay"></div>
             <div class="header">VIRU NEWS UPDATE</div>
-            <div class="content news-box">
+            <div class="news-box">
                 ${newsItems.map((n, i) => `<div class="news-item ${i === 0 ? 'active' : ''}">${n}</div>`).join('')}
             </div>
             <div class="footer">📡 Viru TV | Sri Lanka's Automated Live News</div>
@@ -58,17 +50,16 @@ module.exports = async (req, res) => {
             </audio>
 
             <script>
-                // Autoplay හදාගන්න Screen එකේ කොහේ හරි එක පාරක් Click කරන්න
                 window.onclick = () => { document.getElementById('bgMusic').play(); };
                 const items = document.querySelectorAll('.news-item');
                 let current = 0;
-                setInterval(() => {
-                    if(items.length > 0) {
+                if(items.length > 0) {
+                    setInterval(() => {
                         items[current].classList.remove('active');
                         current = (current + 1) % items.length;
                         items[current].classList.add('active');
-                    }
-                }, 8000);
+                    }, 8000);
+                }
             </script>
         </body>
         </html>
@@ -77,6 +68,6 @@ module.exports = async (req, res) => {
         res.setHeader('Content-Type', 'text/html');
         res.status(200).send(html);
     } catch (e) {
-        res.status(500).send("News Fetch Error: " + e.message);
+        res.status(500).send("Fatal Error: " + e.message);
     }
 };
