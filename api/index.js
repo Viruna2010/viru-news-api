@@ -2,85 +2,129 @@ const axios = require('axios');
 
 module.exports = async (req, res) => {
     try {
-        // අපි Google News එකෙන් ලංකාවේ ඉංග්‍රීසි පුවත් ගන්නවා (මේවා තමයි විස්තරාත්මකව තියෙන්නේ)
-        const apiKey = 'pub_040b167098dc4ec797c94c3a60806ce8';
-        const url = `https://newsdata.io/api/1/news?apikey=${apiKey}&country=lk&language=en`;
-        
-        const response = await axios.get(url);
-        let newsItems = [];
-
-        if (response.data && response.data.results) {
-            newsItems = response.data.results.map(n => n.title).slice(0, 10);
-        }
+        // ඔයා දීපු API Key එක සහ URL එක මෙන්න
+        const apiKey = 'a520962615msh0e8d76bf27630eep1fe183jsn3f52ccadb3ff';
+        const apiHost = 'sri-lanka-news-api.p.rapidapi.com';
+        const apiUrl = 'https://sri-lanka-news-api.p.rapidapi.com/news/sinhala/Ada.lk/data/10';
 
         const html = `
         <!DOCTYPE html>
-        <html lang="en">
+        <html lang="si">
         <head>
             <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Viru TV News Live</title>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@700&display=swap');
+                
                 body { 
-                    margin: 0; padding: 0; background: #000;
+                    margin: 0; padding: 0; 
+                    background: #000;
                     background-image: radial-gradient(circle, #001f3f, #000);
                     font-family: 'Noto Sans Sinhala', sans-serif;
                     height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
                     color: white; overflow: hidden;
                 }
-                /* Google Translate Bar එක හංගන්න */
-                .goog-te-banner-frame.skiptranslate, .goog-te-gadget { display: none !important; }
-                body { top: 0px !important; }
 
-                .header { font-size: 50px; color: #ffcc00; border-bottom: 6px solid red; margin-bottom: 30px; }
-                .news-box { width: 90%; height: 300px; text-align: center; display: flex; align-items: center; justify-content: center; }
-                .news-item { font-size: 45px; line-height: 1.4; display: none; text-shadow: 2px 2px 10px black; animation: fadeIn 1s; }
+                .header { 
+                    font-size: 55px; color: #ffcc00; 
+                    border-bottom: 8px solid #e60000; 
+                    margin-bottom: 30px; 
+                    text-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+                    font-weight: 900;
+                }
+
+                .news-box { 
+                    width: 90%; height: 450px; 
+                    text-align: center; 
+                    display: flex; align-items: center; justify-content: center; 
+                    background: rgba(0, 0, 0, 0.4); 
+                    border-radius: 25px; 
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    padding: 40px; box-sizing: border-box;
+                }
+
+                .news-item { 
+                    font-size: 40px; line-height: 1.6; 
+                    display: none; 
+                    text-shadow: 3px 3px 12px black; 
+                    animation: zoomIn 0.8s ease-out; 
+                }
+
                 .active { display: block; }
-                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-                .footer { position: absolute; bottom: 30px; font-size: 20px; color: #ffcc00; }
+
+                @keyframes zoomIn { 
+                    from { opacity: 0; transform: scale(0.95); } 
+                    to { opacity: 1; transform: scale(1); } 
+                }
+
+                .footer { 
+                    position: absolute; bottom: 30px; 
+                    font-size: 22px; color: #ffcc00; 
+                    background: rgba(230, 0, 0, 0.2); 
+                    padding: 10px 30px; border-radius: 50px;
+                }
             </style>
         </head>
         <body>
-            <div id="google_translate_element"></div>
-            <div class="header">VIRU TV LIVE NEWS</div>
-            <div class="news-box">
-                ${newsItems.map((n, i) => `<div class="news-item ${i === 0 ? 'active' : ''}">${n}</div>`).join('')}
+            <div class="header">VIRU TV NEWS UPDATE</div>
+            
+            <div class="news-box" id="news-container">
+                <div class="news-item active">පුවත් පද්ධතිය හා සම්බන්ධ වෙමින්...</div>
             </div>
-            <div class="footer">📡 Auto-Translated from English | Viru TV News</div>
 
-            <audio id="bgMusic" loop autoplay><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" type="audio/mp3"></audio>
-
-            <script type="text/javascript">
-                function googleTranslateElementInit() {
-                    new google.translate.TranslateElement({
-                        pageLanguage: 'en', 
-                        includedLanguages: 'si', 
-                        layout: google.translate.TranslateElement.InlineLayout.SIMPLE, 
-                        autoDisplay: true
-                    }, 'google_translate_element');
-                    
-                    // තත්පර 2කින් ඉබේම සිංහලට හරවන්න
-                    setTimeout(() => {
-                        var select = document.querySelector('select.goog-te-combo');
-                        if(select) {
-                            select.value = 'si';
-                            select.dispatchEvent(new Event('change'));
-                        }
-                    }, 2000);
-                }
-            </script>
-            <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+            <div class="footer">📡 ADA.LK ඇසුරින් | විනාඩි 5කට වරක් ස්වයංක්‍රීයව යාවත්කාලීන වේ</div>
+            
+            <audio id="bgMusic" loop autoplay>
+                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" type="audio/mp3">
+            </audio>
 
             <script>
-                window.onclick = () => document.getElementById('bgMusic').play();
-                const items = document.querySelectorAll('.news-item');
-                let curr = 0;
-                setInterval(() => {
-                    if(items.length > 0) {
-                        items[curr].classList.remove('active');
-                        curr = (curr + 1) % items.length;
-                        items[curr].classList.add('active');
+                let newsList = [];
+                let currentIndex = 0;
+
+                // API එකෙන් පුවත් ඇදලා ගන්නා Function එක
+                async function fetchNews() {
+                    try {
+                        const response = await fetch('${apiUrl}', {
+                            headers: {
+                                'x-rapidapi-key': '${apiKey}',
+                                'x-rapidapi-host': '${apiHost}'
+                            }
+                        });
+                        const data = await response.json();
+                        if (Array.isArray(data) && data.length > 0) {
+                            // සිරස්තලය සහ විස්තරය එකතු කර ලොකු වාක්‍යයක් සාදා ගනී
+                            newsList = data.map(n => n.title + " - " + (n.description || ""));
+                            console.log("News Updated from API");
+                        }
+                    } catch (error) {
+                        console.error("Error fetching news:", error);
                     }
-                }, 8000);
+                }
+
+                // පුවත් තිරයේ පෙන්වන Function එක
+                function rotateNews() {
+                    const container = document.getElementById('news-container');
+                    if (newsList.length > 0) {
+                        container.innerHTML = '<div class="news-item active">' + newsList[currentIndex] + '</div>';
+                        currentIndex = (currentIndex + 1) % newsList.length;
+                    }
+                }
+
+                // මුලින්ම පුවත් ටික ලබා ගනී
+                fetchNews().then(() => {
+                    rotateNews();
+                    // තත්පර 12කට සැරයක් පුවත් මාරු කරයි (දිග වාක්‍ය කියවීමට කාලය ලබා දී ඇත)
+                    setInterval(rotateNews, 12000);
+                });
+
+                // විනාඩි 5කට සැරයක් පසුබිමින් අලුත් පුවත් ඇද ගනී (Refresh)
+                setInterval(fetchNews, 300000);
+
+                window.onclick = () => {
+                    document.getElementById('bgMusic').play();
+                };
             </script>
         </body>
         </html>
@@ -89,6 +133,6 @@ module.exports = async (req, res) => {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.send(html);
     } catch (e) {
-        res.status(500).send("Translation Engine Error: " + e.message);
+        res.status(500).send("Viru TV System Error: " + e.message);
     }
 };
