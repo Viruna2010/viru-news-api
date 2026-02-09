@@ -16,95 +16,121 @@ module.exports = async (req, res) => {
                     margin: 0; background: #000; color: white;
                     font-family: 'Noto Sans Sinhala', sans-serif;
                     height: 100vh; display: flex; flex-direction: column;
-                    justify-content: center; align-items: center; overflow: hidden;
-                    background-image: linear-gradient(to bottom, #001f3f, #000);
+                    justify-content: flex-end; align-items: center; overflow: hidden;
+                    background: radial-gradient(circle, #001a33 0%, #000 100%);
                 }
 
-                .header { 
-                    font-size: 45px; color: #ffcc00; margin-bottom: 20px;
-                    border-bottom: 5px solid #e60000; padding-bottom: 10px;
-                    text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+                .news-container {
+                    width: 100%;
+                    background: rgba(0, 0, 0, 0.85);
+                    border-top: 5px solid #e60000;
+                    padding: 40px 20px;
+                    box-sizing: border-box;
+                    min-height: 40%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
                 }
 
-                .news-box { 
-                    width: 85%; height: 350px; background: rgba(0,0,0,0.6);
-                    border: 2px solid #e60000;
-                    border-radius: 20px; display: flex; align-items: center;
-                    justify-content: center; padding: 40px; text-align: center;
-                    box-shadow: 0 0 30px rgba(230, 0, 0, 0.2);
+                .headline { 
+                    font-size: 50px; color: #ffcc00; margin-bottom: 15px;
+                    text-align: center; font-weight: 900;
+                    text-transform: uppercase;
+                    border-bottom: 2px solid rgba(255, 204, 0, 0.3);
                 }
 
-                .news-item { 
-                    font-size: 35px; line-height: 1.4;
-                    animation: slideIn 0.8s ease-out;
+                .full-news { 
+                    font-size: 30px; line-height: 1.6;
+                    color: #ffffff; text-align: center;
+                    max-width: 90%;
+                    animation: fadeIn 1.2s ease-in-out;
                 }
 
-                @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-                .footer { margin-top: 30px; font-size: 20px; color: #ffcc00; font-weight: bold; }
+                .live-tag {
+                    position: absolute; top: 40px; left: 40px;
+                    background: #e60000; padding: 10px 25px;
+                    font-size: 25px; font-weight: bold; border-radius: 5px;
+                    animation: blink 1s infinite;
+                }
+
+                @keyframes blink { 50% { opacity: 0.5; } }
+
+                .footer-bar {
+                    width: 100%; background: #ffcc00; color: #000;
+                    padding: 10px; font-size: 22px; font-weight: bold;
+                    text-align: center;
+                }
             </style>
         </head>
         <body onclick="playAudio()">
-            <div class="header">VIRU TV NEWS UPDATE</div>
-            <div class="news-box" id="news-container">
-                <div class="news-item">පුවත් පද්ධතිය හා සම්බන්ධ වෙමින්...</div>
+            <div class="live-tag">🔴 LIVE</div>
+            
+            <div class="news-container" id="display-box">
+                <div class="headline">පද්ධතිය සූදානම් වෙමින් පවතී...</div>
             </div>
-            <div class="footer">📡 SOURCE: HELAKURU ESANA | VIRU TV LIVE</div>
+
+            <div class="footer-bar">📡 VIRU TV NEWS | HELAKURU ESANA වෙතින් පුවත් සජීවීව</div>
 
             <audio id="newsMusic" loop>
                 <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
             </audio>
 
             <script>
-                let newsList = [];
+                let newsData = [];
                 let currentIndex = 0;
                 const audio = document.getElementById('newsMusic');
 
-                // Browser එකේ බ්ලොක් එක මග හරින්න ක්ලික් එකක් ගමු
-                function playAudio() {
-                    audio.play();
-                }
-
-                // ඔටෝම ප්ලේ කරන්නත් ට්‍රයි එකක් දෙමු
-                window.onload = () => {
-                    audio.volume = 0.5;
-                    audio.play().catch(() => {
-                        console.log("Browser blocked autoplay. Click anywhere to play sound.");
-                    });
-                };
+                function playAudio() { audio.play(); }
 
                 async function fetchNews() {
                     try {
                         const response = await fetch('${apiUrl}');
                         const result = await response.json();
                         if (result.news_data && result.news_data.data) {
-                            newsList = result.news_data.data.map(n => n.titleSi);
+                            // මෙතනදී අපි Title එකයි Full Content එකයි දෙකම ගන්නවා
+                            newsData = result.news_data.data.map(n => {
+                                let fullBody = n.contentSi
+                                    .filter(c => c.type === 'text') // රූප නැතුව අකුරු විතරක් ගන්නවා
+                                    .map(c => c.data.replace(/<[^>]*>?/gm, '')) // HTML tags අයින් කරනවා
+                                    .join(' ');
+                                return { title: n.titleSi, body: fullBody };
+                            });
                             return true;
                         }
-                    } catch (e) { console.log(e); }
+                    } catch (e) { console.error(e); }
                     return false;
                 }
 
-                function showNextNews() {
-                    if (newsList.length > 0) {
-                        const container = document.getElementById('news-container');
-                        container.innerHTML = '<div class="news-item">' + newsList[currentIndex] + '</div>';
-                        currentIndex = (currentIndex + 1) % newsList.length;
+                function rotateNews() {
+                    if (newsData.length > 0) {
+                        const box = document.getElementById('display-box');
+                        const item = newsData[currentIndex];
+                        
+                        box.innerHTML = \`
+                            <div class="headline">\${item.title}</div>
+                            <div class="full-news">\${item.body.substring(0, 450)}...</div>
+                        \`;
+                        
+                        currentIndex = (currentIndex + 1) % newsData.length;
                     }
                 }
 
-                async function start() {
+                async function init() {
                     const ok = await fetchNews();
                     if (ok) {
-                        showNextNews();
-                        setInterval(showNextNews, 10000);
+                        rotateNews();
+                        setInterval(rotateNews, 15000); // විස්තරය කියවන්න තත්පර 15ක් දෙනවා
                     } else {
-                        setTimeout(start, 5000);
+                        setTimeout(init, 5000);
                     }
                 }
 
-                start();
-                setInterval(fetchNews, 300000);
+                init();
+                setInterval(fetchNews, 600000); // විනාඩි 10කින් Update වේ
             </script>
         </body>
         </html>
