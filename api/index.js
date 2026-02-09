@@ -10,88 +10,97 @@ module.exports = async (req, res) => {
         <head>
             <meta charset="UTF-8">
             <style>
-                @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@700&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@700;900&display=swap');
                 
                 body { 
                     margin: 0; background: #000; color: white;
                     font-family: 'Noto Sans Sinhala', sans-serif;
                     height: 100vh; display: flex; flex-direction: column;
-                    justify-content: flex-end; align-items: center; overflow: hidden;
-                    background: linear-gradient(0deg, #001220 0%, #000 50%);
+                    align-items: center; overflow: hidden;
+                    background: radial-gradient(circle, #001f3f, #000);
                 }
 
-                /* News Display Area */
-                .news-window {
-                    width: 95%; height: 50vh;
-                    background: rgba(0, 0, 0, 0.7);
-                    border-radius: 20px 20px 0 0;
-                    border: 3px solid #e60000;
-                    border-bottom: none;
-                    position: relative;
-                    padding: 30px;
-                    box-sizing: border-box;
-                    overflow: hidden;
+                /* Header Section */
+                .main-header {
+                    width: 100%; background: rgba(230, 0, 0, 0.9);
+                    padding: 20px 0; text-align: center;
+                    border-bottom: 5px solid #ffcc00;
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+                    z-index: 100;
                 }
 
-                .headline-box {
-                    color: #ffcc00; font-size: 45px;
-                    font-weight: 900; text-align: center;
-                    margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(0,0,0,1);
+                .viru-logo {
+                    font-size: 60px; font-weight: 900; color: white;
+                    letter-spacing: 5px; text-shadow: 3px 3px 0px #000;
                 }
 
-                /* Scrolling Animation */
-                .scroll-container {
-                    position: relative;
-                    height: 250px; /* විස්තරය පෙනෙන උස */
-                    overflow: hidden;
+                .sub-tag { font-size: 20px; color: #ffcc00; display: block; letter-spacing: 2px; }
+
+                /* News Scrolling Area */
+                .news-container {
+                    width: 90%; height: 70vh;
+                    margin-top: 50px; position: relative;
+                    overflow: hidden; text-align: center;
                 }
 
-                .content-scroll {
-                    position: absolute;
-                    width: 100%;
-                    font-size: 32px;
-                    line-height: 1.6;
-                    text-align: center;
-                    animation: smoothScroll 20s linear infinite; /* වේගය මෙතනින් වෙනස් කරන්න */
+                .scroll-content {
+                    position: absolute; width: 100%;
+                    animation: fullScroll 25s linear infinite;
                 }
 
-                @keyframes smoothScroll {
-                    0% { transform: translateY(100%); }
+                .headline { 
+                    font-size: 55px; color: #ffcc00; 
+                    margin-bottom: 30px; font-weight: 900;
+                    line-height: 1.2;
+                }
+
+                .body-text { 
+                    font-size: 38px; line-height: 1.6; color: #ffffff;
+                    padding-bottom: 100px;
+                }
+
+                @keyframes fullScroll {
+                    0% { transform: translateY(100vh); }
                     100% { transform: translateY(-120%); }
                 }
 
-                .live-indicator {
-                    position: absolute; top: 30px; right: 40px;
+                /* Live Indicator */
+                .live-box {
+                    position: fixed; top: 120px; right: 40px;
+                    background: rgba(0,0,0,0.6); padding: 10px 20px;
+                    border-radius: 10px; border: 1px solid red;
                     display: flex; align-items: center; gap: 10px;
                 }
-
-                .dot { width: 15px; height: 15px; background: red; border-radius: 50%; animation: blink 1s infinite; }
+                .dot { width: 12px; height: 12px; background: red; border-radius: 50%; animation: blink 1s infinite; }
                 @keyframes blink { 50% { opacity: 0; } }
 
-                .footer-ticker {
-                    width: 100%; background: #e60000; color: white;
-                    padding: 15px; font-size: 24px; font-weight: bold;
-                    text-align: center; box-shadow: 0 -10px 30px rgba(230,0,0,0.3);
+                .footer-bar {
+                    position: fixed; bottom: 0; width: 100%;
+                    background: #ffcc00; color: #000; padding: 10px;
+                    font-size: 22px; font-weight: bold; text-align: center;
                 }
             </style>
         </head>
         <body onclick="document.getElementById('newsMusic').play()">
             
-            <div class="live-indicator">
-                <div class="dot"></div>
-                <span style="font-weight: bold; font-size: 20px;">SIRIUS LIVE</span>
+            <div class="main-header">
+                <span class="viru-logo">VIRU TV</span>
+                <span class="sub-tag">සජීවී පුවත් විකාශය</span>
             </div>
 
-            <div class="news-window" id="news-window">
-                <div class="headline-box" id="title-display">පද්ධතිය සූදානම් වෙමින් පවතී...</div>
-                <div class="scroll-container">
-                    <div class="content-scroll" id="content-display">
-                        මඳක් රැඳී සිටින්න, අලුත්ම පුවත් දැන් ලැබෙනු ඇත.
-                    </div>
+            <div class="live-box">
+                <div class="dot"></div>
+                <span style="font-weight: bold;">LIVE NEWS</span>
+            </div>
+
+            <div class="news-container" id="news-container">
+                <div class="scroll-content" id="scroll-box">
+                    <div class="headline" id="title-display">පුවත් පද්ධතිය සූදානම් වේ...</div>
+                    <div class="body-text" id="content-display">අලුත්ම පුවත් විස්තර ස්වල්ප වේලාවකින් බලාපොරොත්තු වන්න.</div>
                 </div>
             </div>
 
-            <div class="footer-ticker">📡 VIRU TV NEWS UPDATES | HELAKURU ESANA</div>
+            <div class="footer-bar">📡 SOURCE: HELAKURU ESANA | POWERED BY VIRU TV ENGINE</div>
 
             <audio id="newsMusic" loop>
                 <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
@@ -119,35 +128,36 @@ module.exports = async (req, res) => {
                     return false;
                 }
 
-                function rotateNews() {
+                function updateDisplay() {
                     if (newsData.length > 0) {
-                        const titleBox = document.getElementById('title-display');
-                        const contentBox = document.getElementById('content-display');
+                        const titleEl = document.getElementById('title-display');
+                        const contentEl = document.getElementById('content-display');
+                        const scrollBox = document.getElementById('scroll-box');
+                        
                         const item = newsData[currentIndex];
-                        
-                        titleBox.innerText = item.title;
-                        contentBox.innerText = item.body;
-                        
-                        // Animation එක Reset කරනවා අලුත් නිවුස් එකට
-                        contentBox.style.animation = 'none';
-                        contentBox.offsetHeight; /* Trigger reflow */
-                        contentBox.style.animation = 'smoothScroll 20s linear infinite';
+                        titleEl.innerText = item.title;
+                        contentEl.innerText = item.body;
+
+                        // Animation Reset
+                        scrollBox.style.animation = 'none';
+                        scrollBox.offsetHeight; 
+                        scrollBox.style.animation = 'fullScroll 25s linear infinite';
 
                         currentIndex = (currentIndex + 1) % newsData.length;
                     }
                 }
 
-                async function start() {
+                async function init() {
                     const ok = await fetchNews();
                     if (ok) {
-                        rotateNews();
-                        setInterval(rotateNews, 20000); // තත්පර 20න් 20ට නිවුස් මාරු වේ
+                        updateDisplay();
+                        setInterval(updateDisplay, 25000); // ඇනිමේෂන් එකේ වෙලාවටම මාරු කරනවා
                     } else {
-                        setTimeout(start, 5000);
+                        setTimeout(init, 5000);
                     }
                 }
 
-                start();
+                init();
                 setInterval(fetchNews, 600000);
             </script>
         </body>
