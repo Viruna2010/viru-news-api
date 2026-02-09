@@ -2,7 +2,7 @@ const axios = require('axios');
 
 module.exports = async (req, res) => {
     try {
-        // හෙළකුරු ඇසණ Unofficial API එක
+        // උඹ එවපු නිවැරදි API එක
         const apiUrl = 'https://esena-news-api-v3.vercel.app/news/trending';
 
         const html = `
@@ -10,121 +10,82 @@ module.exports = async (req, res) => {
         <html lang="si">
         <head>
             <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Viru TV News Live</title>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@700&display=swap');
                 
                 body { 
-                    margin: 0; padding: 0; 
-                    background: #000;
-                    background-image: radial-gradient(circle, #080808, #000);
+                    margin: 0; background: #000; color: white;
                     font-family: 'Noto Sans Sinhala', sans-serif;
-                    height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
-                    color: white; overflow: hidden;
+                    height: 100vh; display: flex; flex-direction: column;
+                    justify-content: center; align-items: center; overflow: hidden;
                 }
 
                 .header { 
-                    font-size: 50px; color: #ffcc00; 
-                    border-left: 15px solid #e60000; 
-                    padding-left: 20px;
-                    margin-bottom: 30px; 
-                    text-shadow: 0 0 20px rgba(255, 204, 0, 0.4);
-                    font-weight: 900;
-                    letter-spacing: 2px;
+                    font-size: 45px; color: #ffcc00; margin-bottom: 20px;
+                    border-bottom: 5px solid #e60000; padding-bottom: 10px;
                 }
 
                 .news-box { 
-                    width: 90%; height: 400px; 
-                    text-align: center; 
-                    display: flex; align-items: center; justify-content: center; 
-                    background: rgba(255, 255, 255, 0.05); 
-                    border-radius: 30px; 
-                    border: 2px solid rgba(255, 255, 255, 0.1);
-                    padding: 50px; box-sizing: border-box;
-                    box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+                    width: 85%; height: 350px; background: rgba(255,255,255,0.1);
+                    border-radius: 20px; display: flex; align-items: center;
+                    justify-content: center; padding: 40px; text-align: center;
                 }
 
                 .news-item { 
-                    font-size: 42px; line-height: 1.5; 
-                    text-shadow: 2px 2px 10px rgba(0,0,0,1); 
-                    animation: slideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; 
+                    font-size: 35px; line-height: 1.4;
+                    animation: fadeIn 1s ease-in;
                 }
 
-                @keyframes slideUp { 
-                    0% { opacity: 0; transform: translateY(30px); } 
-                    100% { opacity: 1; transform: translateY(0); } 
-                }
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-                .footer { 
-                    position: absolute; bottom: 40px; 
-                    font-size: 24px; color: #fff; 
-                    background: #e60000; 
-                    padding: 8px 40px; border-radius: 5px;
-                    font-weight: bold;
-                }
+                .footer { margin-top: 30px; font-size: 20px; color: #aaa; }
             </style>
         </head>
         <body>
-            <div class="header">VIRU TV NEWS FLASH</div>
-            
+            <div class="header">VIRU TV NEWS UPDATE</div>
             <div class="news-box" id="news-container">
-                <div class="news-item">නවතම පුවත් පද්ධතියට එක්වෙමින් පවතී...</div>
+                <div class="news-item">පුවත් පද්ධතිය හා සම්බන්ධ වෙමින්...</div>
             </div>
-
-            <div class="footer">📡 ESENA NEWS | VIRU TV LIVE UPDATE</div>
-            
-            <audio id="bgMusic" loop autoplay>
-                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" type="audio/mp3">
-            </audio>
+            <div class="footer">SOURCE: HELAKURU ESANA | VIRU TV LIVE</div>
 
             <script>
                 let newsList = [];
                 let currentIndex = 0;
-                const container = document.getElementById('news-container');
 
                 async function fetchNews() {
                     try {
-                        // අපිට RapidAPI Keys දැන් ඕන වෙන්නේ නැහැ
                         const response = await fetch('${apiUrl}');
                         const result = await response.json();
                         
-                        // ඇසණ API එකේ දත්ත තියෙන්නේ result.news ඇතුලේ
-                        if (result.status && result.news.length > 0) {
-                            newsList = result.news.map(n => n.title);
+                        // උඹ එවපු JSON එකට අනුව මෙන්න මෙතනයි දත්ත තියෙන්නේ
+                        if (result.news_data && result.news_data.data) {
+                            newsList = result.news_data.data.map(n => n.titleSi);
                             return true;
                         }
-                    } catch (error) {
-                        console.error("News Fetch Error:", error);
-                    }
+                    } catch (e) { console.log(e); }
                     return false;
                 }
 
-                function rotateNews() {
+                function showNextNews() {
                     if (newsList.length > 0) {
-                        container.innerHTML = "";
-                        const div = document.createElement('div');
-                        div.className = 'news-item';
-                        div.innerText = newsList[currentIndex];
-                        container.appendChild(div);
+                        const container = document.getElementById('news-container');
+                        container.innerHTML = '<div class="news-item">' + newsList[currentIndex] + '</div>';
                         currentIndex = (currentIndex + 1) % newsList.length;
                     }
                 }
 
-                async function startSystem() {
-                    const success = await fetchNews();
-                    if (success) {
-                        rotateNews();
-                        setInterval(rotateNews, 10000); // තත්පර 10කින් නිවුස් මාරු වේ
+                async function start() {
+                    const ok = await fetchNews();
+                    if (ok) {
+                        showNextNews();
+                        setInterval(showNextNews, 10000); // තත්පර 10න් 10ට නිවුස් මාරු වේ
                     } else {
-                        setTimeout(startSystem, 5000);
+                        setTimeout(start, 5000);
                     }
                 }
 
-                startSystem();
-                setInterval(fetchNews, 600000); // විනාඩි 10කට වරක් අලුත්ම නිවුස් ගනී
-
-                window.onclick = () => document.getElementById('bgMusic').play();
+                start();
+                setInterval(fetchNews, 300000); // විනාඩි 5කට වරක් අලුත් නිවුස් ගනී
             </script>
         </body>
         </html>
