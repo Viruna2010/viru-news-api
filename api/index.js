@@ -14,78 +14,74 @@ module.exports = async (req, res) => {
                 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;700;900&display=swap');
                 
                 body { 
-                    margin: 0; background: #000; color: white;
+                    margin: 0; background: #000000; color: white;
                     font-family: 'Noto Sans Sinhala', sans-serif;
                     height: 100vh; display: flex; flex-direction: column;
                     align-items: center; justify-content: center; overflow: hidden;
                 }
 
-                .bg-overlay {
-                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                    background: radial-gradient(circle at 50% 50%, #1a0000 0%, #000 100%);
-                    z-index: -1;
-                }
-
-                /* Header Area */
+                /* Header */
                 .header { position: absolute; top: 40px; text-align: center; }
                 .viru-logo { 
-                    font-size: 70px; font-weight: 900; color: #fff;
-                    letter-spacing: 15px; text-shadow: 0 0 20px #e60000;
+                    font-size: 75px; font-weight: 900; color: #fff;
+                    letter-spacing: 12px; text-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
                 }
                 .live-indicator {
-                    background: #e60000; color: white; padding: 6px 18px;
-                    font-size: 18px; font-weight: 900; border-radius: 5px;
-                    display: inline-flex; align-items: center; gap: 10px; margin-top: 15px;
+                    background: #ff0000; color: white; padding: 5px 15px;
+                    font-size: 16px; font-weight: 900; border-radius: 4px;
+                    display: inline-flex; align-items: center; gap: 8px; margin-top: 10px;
                 }
-                .dot { width: 12px; height: 12px; background: #fff; border-radius: 50%; animation: pulse 1s infinite; }
-                @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.2; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+                .dot { width: 10px; height: 10px; background: white; border-radius: 50%; animation: blink 0.8s infinite; }
+                @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
                 /* News Box */
                 .news-box {
-                    width: 90%; max-width: 1250px; text-align: center;
-                    padding: 80px 40px; border-left: 12px solid #e60000;
-                    background: rgba(255, 255, 255, 0.02);
-                    border-radius: 0 30px 30px 0; box-shadow: -15px 0 35px rgba(230, 0, 0, 0.1);
+                    width: 90%; max-width: 1200px; text-align: center;
+                    padding: 60px 20px; border-bottom: 2px solid #333;
                 }
 
+                /* අකුරු වල පාට - Cyan & White Neon */
                 .headline { 
-                    font-size: 58px; color: #ffcc00; font-weight: 900;
-                    line-height: 1.4; transition: opacity 0.8s ease;
+                    font-size: 55px; color: #00f2fe; font-weight: 800;
+                    line-height: 1.5; transition: all 0.7s ease-in-out;
+                    text-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+                    opacity: 0;
                 }
 
-                /* Fake News ආරක්ෂණ Disclaimer එක */
+                .active { opacity: 1; }
+
+                /* Disclaimer */
                 .legal-notice {
-                    position: absolute; bottom: 85px; width: 80%;
-                    font-size: 13px; color: #888; text-align: center;
-                    font-weight: bold; font-style: italic; opacity: 0.6;
+                    position: absolute; bottom: 90px; width: 85%;
+                    font-size: 13px; color: #444; text-align: center;
+                    font-weight: bold;
                 }
 
-                /* Footer */
+                /* Footer - Full Black Style */
                 .footer {
                     position: absolute; bottom: 0; width: 100%;
-                    background: #e60000; color: #fff; padding: 18px 0;
-                    font-weight: 900; font-size: 24px; text-align: center;
-                    letter-spacing: 2px; border-top: 5px solid #ffcc00;
+                    background: #111; color: #00f2fe; padding: 20px 0;
+                    font-weight: 900; font-size: 22px; text-align: center;
+                    letter-spacing: 3px; border-top: 1px solid #333;
                 }
             </style>
         </head>
         <body onclick="document.getElementById('newsMusic').play()">
-            <div class="bg-overlay"></div>
             
             <div class="header">
                 <div class="viru-logo">VIRU TV</div>
-                <div class="live-indicator"><div class="dot"></div> LIVE UPDATES</div>
+                <div class="live-indicator"><div class="dot"></div> LIVE STREAMING</div>
             </div>
 
             <div class="news-box">
-                <div class="headline" id="title-display">පද්ධතිය සක්‍රිය වෙමින් පවතී...</div>
+                <div class="headline" id="title-display">පද්ධතිය සූදානම් වෙමින් පවතී...</div>
             </div>
 
             <div class="legal-notice">
-                * මෙහි පළවන තොරතුරු අන්තර්ජාලයෙන් ස්වයංක්‍රීයව උපුටා ගන්නා අතර එහි සත්‍ය අසත්‍යතාවය පිළිබඳ VIRU TV වගකීමක් දරනු නොලැබේ.
+                * මෙහි පලවන තොරතුරු අන්තර්ජාලයෙන් ස්වයංක්‍රීයව උපුටා ගන්නා දත්ත වන අතර එහි සත්‍යතාවය පිළිබඳ වගකීමක් දරනු නොලැබේ.
             </div>
 
-            <div class="footer">VIRU TV | 24/7 AUTOMATED INFORMATION SERVICE</div>
+            <div class="footer">VIRU TV | 24/7 AUTOMATED NEWS SERVICE</div>
 
             <audio id="newsMusic" loop>
                 <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
@@ -101,8 +97,8 @@ module.exports = async (req, res) => {
                         const result = await response.json();
                         if (result.news_data && result.news_data.data) {
                             newsData = result.news_data.data.map(n => {
-                                let clean = n.titleSi.replace(/Esana|හෙළකුරු|Ada Derana|NewsFirst/gi, "").trim();
-                                return clean.split('').join('\\u200B');
+                                // මෙතනදී අර invisible spaces අයින් කරලා තියෙන්නේ
+                                return n.titleSi.replace(/Esana|හෙළකුරු|Ada Derana/gi, "").trim();
                             });
                             return true;
                         }
@@ -113,12 +109,13 @@ module.exports = async (req, res) => {
                 function updateDisplay() {
                     if (newsData.length > 0) {
                         const titleEl = document.getElementById('title-display');
-                        titleEl.style.opacity = 0;
+                        titleEl.classList.remove('active');
+                        
                         setTimeout(() => {
                             titleEl.innerText = newsData[currentIndex];
-                            titleEl.style.opacity = 1;
+                            titleEl.classList.add('active');
                             currentIndex = (currentIndex + 1) % newsData.length;
-                        }, 800);
+                        }, 700);
                     }
                 }
 
@@ -126,14 +123,14 @@ module.exports = async (req, res) => {
                     const ok = await fetchNews();
                     if (ok) {
                         updateDisplay();
-                        setInterval(updateDisplay, 8500);
+                        setInterval(updateDisplay, 8000); 
                     } else {
                         setTimeout(init, 5000);
                     }
                 }
 
                 init();
-                setInterval(fetchNews, 600000); 
+                setInterval(fetchNews, 600000);
             </script>
         </body>
         </html>
@@ -142,6 +139,6 @@ module.exports = async (req, res) => {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.send(html);
     } catch (e) {
-        res.status(500).send("Security Applied.");
+        res.status(500).send("System Secure.");
     }
 };
