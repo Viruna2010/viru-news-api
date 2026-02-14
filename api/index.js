@@ -22,10 +22,13 @@ module.exports = async (req, res) => {
 
                 /* Header */
                 .header { position: absolute; top: 40px; text-align: center; }
+                
+                /* VIRU TV Logo - Neon Yellow */
                 .viru-logo { 
-                    font-size: 75px; font-weight: 900; color: #fff;
-                    letter-spacing: 12px; text-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+                    font-size: 75px; font-weight: 900; color: #ffff00;
+                    letter-spacing: 12px; text-shadow: 0 0 20px rgba(255, 255, 0, 0.4);
                 }
+
                 .live-indicator {
                     background: #ff0000; color: white; padding: 5px 15px;
                     font-size: 16px; font-weight: 900; border-radius: 4px;
@@ -40,11 +43,9 @@ module.exports = async (req, res) => {
                     padding: 60px 20px; border-bottom: 2px solid #333;
                 }
 
-                /* අකුරු වල පාට - Cyan & White Neon */
                 .headline { 
-                    font-size: 55px; color: #00f2fe; font-weight: 800;
+                    font-size: 55px; color: #ffffff; font-weight: 800;
                     line-height: 1.5; transition: all 0.7s ease-in-out;
-                    text-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
                     opacity: 0;
                 }
 
@@ -57,7 +58,7 @@ module.exports = async (req, res) => {
                     font-weight: bold;
                 }
 
-                /* Footer - Full Black Style */
+                /* Footer - Electric Cyan Text */
                 .footer {
                     position: absolute; bottom: 0; width: 100%;
                     background: #111; color: #00f2fe; padding: 20px 0;
@@ -97,7 +98,6 @@ module.exports = async (req, res) => {
                         const result = await response.json();
                         if (result.news_data && result.news_data.data) {
                             newsData = result.news_data.data.map(n => {
-                                // මෙතනදී අර invisible spaces අයින් කරලා තියෙන්නේ
                                 return n.titleSi.replace(/Esana|හෙළකුරු|Ada Derana/gi, "").trim();
                             });
                             return true;
