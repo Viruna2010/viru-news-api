@@ -10,72 +10,77 @@ module.exports = async (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="robots" content="noindex, nofollow">
-            <title>VIRU TV | Live</title>
+            <title>VIRU TV LIVE</title>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;700;900&display=swap');
                 
                 body { 
-                    margin: 0; background: #050505; color: white;
+                    margin: 0; background: #0a0a0a; color: white;
                     font-family: 'Noto Sans Sinhala', sans-serif;
                     height: 100vh; display: flex; flex-direction: column;
                     align-items: center; justify-content: center; overflow: hidden;
                 }
 
-                /* Background - ටිකක් Modern Dark look එකක් */
+                /* Background Gradient */
                 .bg-overlay {
                     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                    background: radial-gradient(circle at 50% 50%, #101820 0%, #050505 100%);
+                    background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 100%);
                     z-index: -1;
                 }
 
-                /* Glassmorphism Effect එකක් තියෙන Header එකක් */
+                /* Header Section */
                 .header { 
-                    position: absolute; top: 40px; 
-                    background: rgba(255, 255, 255, 0.05);
-                    padding: 15px 40px; border-radius: 15px;
-                    backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1);
-                    text-align: center;
+                    position: absolute; top: 30px; display: flex; flex-direction: column; align-items: center;
                 }
 
                 .viru-logo { 
-                    font-size: 50px; font-weight: 900; 
-                    background: linear-gradient(to right, #00f2fe, #4facfe); /* Cyan Gradient */
-                    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-                    letter-spacing: 5px; filter: drop-shadow(0 0 10px rgba(79, 172, 254, 0.5));
+                    font-size: 65px; font-weight: 900; color: #ffffff;
+                    letter-spacing: 10px; text-shadow: 4px 4px 0px #e60000;
+                    margin-bottom: 5px;
                 }
 
-                /* News Display - මෙතන තමයි සෙල්ලම */
+                /* නිවි නිවි පත්තු වෙන LIVE Tag එක */
+                .live-indicator {
+                    background: #e60000; color: white; padding: 4px 15px;
+                    font-size: 18px; font-weight: 900; border-radius: 4px;
+                    display: flex; align-items: center; gap: 8px;
+                    box-shadow: 0 0 15px rgba(230, 0, 0, 0.6);
+                }
+
+                .dot {
+                    width: 12px; height: 12px; background: white; border-radius: 50%;
+                    animation: blink 0.8s infinite;
+                }
+
+                @keyframes blink {
+                    0% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.1; transform: scale(0.8); }
+                    100% { opacity: 1; transform: scale(1); }
+                }
+
+                /* News Display Area */
                 .news-container {
-                    width: 85%; max-width: 1100px;
-                    text-align: center; padding: 60px;
-                    position: relative;
+                    width: 85%; max-width: 1150px; text-align: center;
+                    padding: 50px; border-left: 8px solid #ffcc00; /* Gold Line */
+                    background: rgba(255, 255, 255, 0.03);
+                    border-radius: 0 20px 20px 0;
                 }
 
-                /* අකුරු වලට Neon Glow එකක් සහ Bold ගතියක් */
                 .headline { 
-                    font-size: 52px; color: #ffffff; font-weight: 900;
-                    line-height: 1.5; text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-                    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-                    opacity: 0; transform: translateY(20px);
+                    font-size: 50px; color: #ffcc00; font-weight: 800;
+                    line-height: 1.4; transition: all 0.6s ease-in-out;
+                    opacity: 0; transform: scale(0.95);
                 }
 
-                .headline.active { opacity: 1; transform: translateY(0); }
+                .headline.active { opacity: 1; transform: scale(1); }
 
-                /* Decorative line */
-                .line {
-                    width: 150px; height: 6px; background: #00f2fe;
-                    margin: 30px auto; border-radius: 10px;
-                    box-shadow: 0 0 15px #00f2fe;
-                }
-
-                /* Footer - Clean and Professional */
+                /* Footer Bar */
                 .footer {
                     position: absolute; bottom: 0; width: 100%;
-                    background: linear-gradient(to right, #00f2fe, #4facfe);
-                    color: #000; padding: 12px 0;
-                    font-weight: 900; font-size: 20px;
-                    text-align: center; letter-spacing: 1px;
-                    box-shadow: 0 -5px 20px rgba(0, 242, 254, 0.3);
+                    background: #e60000; color: white;
+                    padding: 15px 0; font-weight: 900; font-size: 22px;
+                    text-align: center; letter-spacing: 3px;
+                    border-top: 4px solid #ffcc00;
                 }
             </style>
         </head>
@@ -84,15 +89,16 @@ module.exports = async (req, res) => {
             
             <div class="header">
                 <div class="viru-logo">VIRU TV</div>
-                <div style="color: #00f2fe; font-size: 14px; font-weight: bold; letter-spacing: 4px; margin-top: 5px;">LIVE BROADCAST</div>
+                <div class="live-indicator">
+                    <div class="dot"></div> LIVE BROADCAST
+                </div>
             </div>
 
             <div class="news-container">
-                <div class="headline" id="title-display">ප්‍රවෘත්ති පූරණය වෙමින් පවතී...</div>
-                <div class="line"></div>
+                <div class="headline" id="title-display">පුවත් පූරණය වෙමින් පවතී...</div>
             </div>
 
-            <div class="footer">STAY UPDATED WITH VIRU TV | AUTOMATED NEWS FEED</div>
+            <div class="footer">🔴 24/7 AUTOMATED NEWS SERVICE | VIRU TV 🔴</div>
 
             <audio id="newsMusic" loop>
                 <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
@@ -112,9 +118,7 @@ module.exports = async (req, res) => {
                             });
                             return true;
                         }
-                    } catch (e) { 
-                        console.error("Fetch Error");
-                    }
+                    } catch (e) { console.error("API Error"); }
                     return false;
                 }
 
@@ -127,7 +131,7 @@ module.exports = async (req, res) => {
                             titleEl.innerText = newsData[currentIndex];
                             titleEl.classList.add('active');
                             currentIndex = (currentIndex + 1) % newsData.length;
-                        }, 800);
+                        }, 600);
                     }
                 }
 
@@ -152,6 +156,6 @@ module.exports = async (req, res) => {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.send(html);
     } catch (e) {
-        res.status(500).send("Server Error");
+        res.status(500).send("Error");
     }
 };
