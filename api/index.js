@@ -21,17 +21,13 @@ module.exports = async (req, res) => {
                     align-items: center; justify-content: center; overflow: hidden;
                 }
 
-                /* Background Effect - Risk 0 කරද්දී Branding වෙනස් කරනවා */
                 .bg-overlay {
                     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
                     background: linear-gradient(135deg, #0f0f0f 0%, #1a0000 100%);
                     z-index: -1;
                 }
 
-                /* Top Header */
-                .header {
-                    position: absolute; top: 50px; text-align: center;
-                }
+                .header { position: absolute; top: 50px; text-align: center; }
                 .viru-logo { 
                     font-size: 60px; font-weight: 900; color: #ffcc00;
                     letter-spacing: 8px; text-shadow: 3px 3px 10px rgba(0,0,0,1);
@@ -42,7 +38,6 @@ module.exports = async (req, res) => {
                     display: inline-block; margin-top: 10px; animation: blink 1s infinite;
                 }
 
-                /* News Display - Title Only (Risk Reduction) */
                 .news-container {
                     width: 90%; max-width: 1100px;
                     text-align: center; padding: 40px;
@@ -50,15 +45,13 @@ module.exports = async (req, res) => {
                 }
 
                 .headline { 
-                    font-size: 55px; color: white; font-weight: 700;
+                    font-size: 45px; color: white; font-weight: 700;
                     line-height: 1.4; text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-                    animation: slideUp 0.5s ease-out;
+                    transition: opacity 0.5s ease-in-out;
                 }
 
-                @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
                 @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-                /* Footer Bar */
                 .footer {
                     position: absolute; bottom: 0; width: 100%;
                     background: #ffcc00; color: #000;
@@ -91,24 +84,27 @@ module.exports = async (req, res) => {
 
                 async function fetchNews() {
                     try {
-                        // Original Source එක පටලවන්න තමයි මෙතනින් Fetch කරන්නේ
-                        const response = await fetch('/api/data'); 
+                        // මෙතන කෙලින්ම API URL එක පාවිච්චි කරනවා
+                        const response = await fetch('${apiUrl}');
                         const result = await response.json();
                         if (result.news_data && result.news_data.data) {
-                            // Risk Reduction: Title එකේ තියෙන අයිතිකාර නාමයන් (Esana/Helakuru) අයින් කරනවා
                             newsData = result.news_data.data.map(n => {
-                                return n.titleSi.replace("Esana", "").replace("EsanaNews", "").replace("හෙළකුරු", "").trim();
+                                // Risk 0: Title එකේ තියෙන අයිතිකාර නාමයන් අයින් කරනවා
+                                return n.titleSi.replace(/Esana/gi, "").replace(/හෙළකුරු/gi, "").trim();
                             });
                             return true;
                         }
-                    } catch (e) { console.error(e); }
+                    } catch (e) { 
+                        console.error("Fetch Error:", e);
+                        document.getElementById('title-display').innerText = "දත්ත සම්බන්ධතාවය බිඳ වැටී ඇත...";
+                    }
                     return false;
                 }
 
                 function updateDisplay() {
                     if (newsData.length > 0) {
                         const titleEl = document.getElementById('title-display');
-                        titleEl.style.opacity = 0; // Transition effect
+                        titleEl.style.opacity = 0;
                         
                         setTimeout(() => {
                             titleEl.innerText = newsData[currentIndex];
@@ -129,7 +125,7 @@ module.exports = async (req, res) => {
                 }
 
                 init();
-                setInterval(fetchNews, 600000); // විනාඩි 10න් 10ට Background එකේ Fetch වෙනවා
+                setInterval(fetchNews, 600000); // විනාඩි 10න් 10ට අලුත් දත්ත ලබා ගැනීම
             </script>
         </body>
         </html>
@@ -138,6 +134,6 @@ module.exports = async (req, res) => {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.send(html);
     } catch (e) {
-        res.status(500).send("Error: " + e.message);
+        res.status(500).send("Server Error: " + e.message);
     }
 };
